@@ -46,13 +46,32 @@ export function Banner() {
 
       // Animate button with bounce
       if (buttonRef.current) {
-        gsap.from(buttonRef.current, {
+        // Set initial state
+        gsap.set(buttonRef.current, {
           opacity: 0,
           scale: 0.5,
           rotation: -180,
+          transformOrigin: 'center center',
+        });
+
+        // Entrance animation
+        gsap.to(buttonRef.current, {
+          opacity: 1,
+          scale: 1,
+          rotation: 0,
           duration: 1,
           delay: 0.6,
           ease: 'back.out(1.7)',
+          onComplete: () => {
+            // Floating animation (starts after entrance completes)
+            gsap.to(buttonRef.current, {
+              y: -10,
+              duration: 2,
+              repeat: -1,
+              yoyo: true,
+              ease: 'power1.inOut',
+            });
+          },
         });
 
         // Hover animation
@@ -72,15 +91,6 @@ export function Banner() {
             duration: 0.3,
             ease: 'power2.out',
           });
-        });
-
-        // Floating animation
-        gsap.to(buttonRef.current, {
-          y: -10,
-          duration: 2,
-          repeat: -1,
-          yoyo: true,
-          ease: 'power1.inOut',
         });
       }
     }, containerRef);
