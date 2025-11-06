@@ -2,7 +2,7 @@
 
 import { useWallet } from '@solana/wallet-adapter-react';
 import { useWalletModal } from '@solana/wallet-adapter-react-ui';
-import { Header } from '../../components/Header';
+import { Header } from '@/components/Header';
 import Link from 'next/link';
 
 // Mock data - replace with actual API call

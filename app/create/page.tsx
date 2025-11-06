@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { useWalletModal } from '@solana/wallet-adapter-react-ui';
-import { Header } from '../../components/Header';
+import { Header } from '@/components/Header';
 
 export default function CreateApp() {
   const { publicKey } = useWallet();

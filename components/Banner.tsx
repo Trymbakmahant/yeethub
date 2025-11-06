@@ -4,8 +4,8 @@ import Link from 'next/link';
 
 export function Banner() {
   return (
-    <div className="bg-black py-12 px-6">
-      <div className="max-w-7xl mx-auto">
+    <div className="bg-black h-[calc(100vh-200px)] flex items-center justify-center py-12 px-6">
+      <div className="max-w-7xl mx-auto h-full flex flex-col items-center justify-center">
         <div className="bg-gradient-to-r from-cyan-400 via-green-400 to-purple-400 bg-clip-text text-transparent text-6xl font-bold text-center mb-6">
           the official deployment platform
         </div>

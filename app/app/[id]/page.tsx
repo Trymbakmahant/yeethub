@@ -2,8 +2,8 @@
 
 import { useWallet } from '@solana/wallet-adapter-react';
 import { useWalletModal } from '@solana/wallet-adapter-react-ui';
-import { Header } from '../../../components/Header';
-import { AppViewer } from '../../../components/AppViewer';
+import { Header } from '@/components/Header';
+import { AppViewer } from '@/components/AppViewer';
 import { use } from 'react';
 
 export default function AppPage({ params }: { params: Promise<{ id: string }> }) {

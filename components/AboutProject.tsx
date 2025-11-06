@@ -1,7 +1,7 @@
 export function AboutProject() {
   return (
-    <div className="bg-gray-900 py-16 px-6">
-      <div className="max-w-4xl mx-auto">
+    <div className="bg-gray-900 h-[calc(100vh-200px)] flex items-center justify-center py-16 px-6">
+      <div className="max-w-4xl mx-auto h-full flex flex-col items-center justify-center">
         <h2 className="text-3xl font-bold text-white mb-8">About YeetHub</h2>
         <div className="space-y-6 text-gray-300 leading-relaxed">
           <p>
