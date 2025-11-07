@@ -11,10 +11,19 @@ export async function createPaymentTransaction(
   fromPublicKey: PublicKey,
   paymentInfo: PaymentInfo['payment']
 ): Promise<Transaction> {
+  if (!paymentInfo || !paymentInfo.recipient) {
+    throw new Error('Payment info missing recipient');
+  }
+  const amountNumber = typeof paymentInfo.amount === 'string'
+    ? parseFloat(paymentInfo.amount)
+    : paymentInfo.amount;
+  if (typeof amountNumber !== 'number' || Number.isNaN(amountNumber)) {
+    throw new Error('Payment info missing amount');
+  }
   const transaction = new Transaction();
 
   const recipientPublicKey = new PublicKey(paymentInfo.recipient);
-  const amount = paymentInfo.amount * LAMPORTS_PER_SOL; // Convert to lamports
+  const amount = amountNumber * LAMPORTS_PER_SOL; // Convert to lamports
 
   // Add transfer instruction
   transaction.add(
@@ -42,14 +51,24 @@ export async function makePayment(
   wallet: any, // Wallet adapter wallet (useWallet hook result)
   paymentInfo: PaymentInfo['payment']
 ): Promise<PaymentResponse> {
+  if (!paymentInfo) {
+    throw new Error('Payment info not provided');
+  }
   if (!wallet.publicKey || !wallet.sendTransaction) {
     throw new Error('Wallet not connected or does not support transactions');
   }
 
+  const normalizedPaymentInfo = {
+    ...paymentInfo,
+    amount: typeof paymentInfo.amount === 'string'
+      ? parseFloat(paymentInfo.amount)
+      : paymentInfo.amount,
+  };
+
   const transaction = await createPaymentTransaction(
     connection,
     wallet.publicKey,
-    paymentInfo
+    normalizedPaymentInfo
   );
 
   // Sign and send transaction using wallet adapter
@@ -60,8 +79,8 @@ export async function makePayment(
 
   return {
     transaction: signature,
-    amount: paymentInfo.amount,
-    token: paymentInfo.token,
+    amount: normalizedPaymentInfo.amount,
+    token: normalizedPaymentInfo.token,
   };
 }
 

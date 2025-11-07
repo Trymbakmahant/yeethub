@@ -27,10 +27,15 @@ export async function requestViaSubdomain(
   // Handle 402 Payment Required
   if (response.status === 402) {
     const paymentInfo: PaymentInfo = await response.json();
+    const paymentPayload = paymentInfo?.payment;
+
+    if (!paymentPayload || !paymentPayload.recipient || !paymentPayload.amount || !paymentPayload.token) {
+      throw new Error('Invalid payment response from wrapper service: missing payment details');
+    }
 
     if (!handlePayment && connection && wallet) {
       // Use default payment handler
-      const payment = await makePayment(connection, wallet, paymentInfo.payment);
+      const payment = await makePayment(connection, wallet, paymentPayload);
       
       // Retry with payment header
       response = await fetch(url, {
@@ -46,7 +51,7 @@ export async function requestViaSubdomain(
       });
     } else if (handlePayment) {
       // Use custom payment handler
-      const payment = await handlePayment(paymentInfo);
+      const payment = await handlePayment({ payment: paymentPayload });
       
       // Retry with payment header
       response = await fetch(url, {

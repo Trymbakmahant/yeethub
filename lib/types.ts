@@ -30,7 +30,7 @@ export interface CreateApiRequest {
 
 export interface PaymentInfo {
   payment: {
-    amount: number;
+    amount: number | string;
     token: string;
     recipient: string;
     memo?: string;
