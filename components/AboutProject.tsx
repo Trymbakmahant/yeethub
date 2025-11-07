@@ -12,22 +12,22 @@ const features = [
   {
     icon: '🔐',
     title: 'Connect Wallet',
-    description: 'Connect your Solana wallet to store your deployment history and manage your apps',
+    description: 'Connect your Solana wallet to manage your API wrappers and track revenue',
   },
   {
-    icon: '🚀',
-    title: 'Deploy Spaces',
-    description: 'Provide a Hugging Face Space URL and we\'ll deploy it as a Docker container for you',
+    icon: '🌐',
+    title: 'Auto Subdomains',
+    description: 'Get professional subdomain URLs automatically - no DNS configuration needed',
   },
   {
     icon: '💻',
-    title: 'Live Instances',
-    description: 'Access your deployed apps anytime with a live, running instance of your Space',
+    title: 'Wrap Any API',
+    description: 'Wrap any existing API endpoint with x402 payment functionality',
   },
   {
     icon: '💰',
-    title: 'Pay with x402',
-    description: 'Seamless payment using x402 tokens for deployment and usage',
+    title: 'Pay-per-Request',
+    description: 'Monetize your APIs with native SOL or any SPL token payments',
   },
 ];
 
@@ -107,9 +107,9 @@ export function AboutProject() {
           About YeetHub
         </h2>
         <p className="text-gray-400 text-center mb-12 max-w-2xl mx-auto">
-          A decentralized platform that allows you to deploy and use Hugging Face Spaces 
-          as standalone Docker applications. Simply provide a Hugging Face Space link, and we'll 
-          handle the deployment for you.
+          A decentralized platform that wraps your existing APIs with x402 payment functionality. 
+          Monetize your APIs instantly with pay-per-request pricing, automatic subdomain assignment, 
+          and seamless Solana payments.
         </p>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
@@ -140,7 +140,7 @@ export function AboutProject() {
                 1
               </div>
               <p className="text-gray-300 leading-relaxed">
-                Connect your Solana wallet to store your deployment history
+                Connect your Solana wallet to create and manage your API wrappers
               </p>
             </div>
             <div className="flex items-start gap-4">
@@ -148,7 +148,7 @@ export function AboutProject() {
                 2
               </div>
               <p className="text-gray-300 leading-relaxed">
-                Create a new Yeet app by providing your Hugging Face Space URL
+                Create an API wrapper by providing your original API URL and pricing
               </p>
             </div>
             <div className="flex items-start gap-4">
@@ -156,7 +156,7 @@ export function AboutProject() {
                 3
               </div>
               <p className="text-gray-300 leading-relaxed">
-                We deploy the Docker container and provide you with a live instance
+                Get an auto-assigned professional subdomain URL for your wrapped API
               </p>
             </div>
             <div className="flex items-start gap-4">
@@ -164,7 +164,7 @@ export function AboutProject() {
                 4
               </div>
               <p className="text-gray-300 leading-relaxed">
-                Access your deployed apps anytime by connecting your wallet
+                Users access your API via the subdomain and pay automatically per request
               </p>
             </div>
             <div className="flex items-start gap-4">
@@ -172,14 +172,14 @@ export function AboutProject() {
                 5
               </div>
               <p className="text-gray-300 leading-relaxed">
-                Pay for usage seamlessly with x402 tokens
+                Track revenue and analytics in your dashboard
               </p>
             </div>
           </div>
           <div className="mt-6 pt-6 border-t border-gray-700">
             <p className="text-gray-400 text-sm">
-              <strong className="text-white">Your wallet address is your identity</strong> - all your deployments 
-              and usage history are tied to your wallet, so you can easily access them whenever you return.
+              <strong className="text-white">Your wallet address is your identity</strong> - all your API wrappers 
+              and revenue are tied to your wallet, so you can easily manage them whenever you return.
             </p>
           </div>
         </div>

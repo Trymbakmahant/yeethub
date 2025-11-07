@@ -117,21 +117,21 @@ export function Banner() {
             WebkitTextFillColor: 'transparent',
           }}
         >
-          the official deployment platform
+          Wrap Your APIs with x402 Payments
         </h1>
         <div className="text-center mb-8">
           <p
             ref={subtitleRef}
             className="text-white text-lg md:text-xl font-mono mb-6"
           >
-            Deploy Hugging Face Spaces • Use Docker • Pay with x402
+            Monetize Your APIs • Auto-Assigned Subdomains • Pay-per-Request
           </p>
           <Link
             ref={buttonRef}
             href="/create"
             className="inline-block bg-[#FF6B35] hover:bg-[#ff5722] text-white px-8 py-4 rounded-lg text-lg font-semibold transition-all cursor-pointer"
           >
-            Create New App
+            Create API Wrapper
           </Link>
         </div>
       </div>

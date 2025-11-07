@@ -72,7 +72,6 @@ export function Header() {
       <div className="border-b border-gray-800 px-6 py-2">
         <div className="max-w-7xl mx-auto flex items-center justify-between text-xs text-gray-400">
           <div className="flex gap-4">
-            <Link href="#" className="hover:text-white transition">SPACES</Link>
             <Link href="#" className="hover:text-white transition">DOCS</Link>
             <Link href="#" className="hover:text-white transition">SUPPORT</Link>
           </div>
