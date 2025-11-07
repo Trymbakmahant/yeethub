@@ -148,10 +148,46 @@ export function Header() {
       {/* Navigation bar */}
       <nav className="border-t border-gray-800 px-6">
         <div className="max-w-7xl mx-auto flex items-center gap-6 text-sm font-medium">
-          <Link href="/" className="text-white border-b-2 border-[#FF6B35] py-3">HOME</Link>
-          <Link href="/dashboard" className="text-gray-400 hover:text-white transition py-3">MY APPS</Link>
-          <Link href="/analytics" className="text-gray-400 hover:text-white transition py-3">ANALYTICS</Link>
-          <Link href="/create" className="text-gray-400 hover:text-white transition py-3">CREATE APP</Link>
+          <Link 
+            href="/" 
+            className={`py-3 transition ${
+              pathname === '/' 
+                ? 'text-white border-b-2 border-[#FF6B35]' 
+                : 'text-gray-400 hover:text-white'
+            }`}
+          >
+            HOME
+          </Link>
+          <Link 
+            href="/dashboard" 
+            className={`py-3 transition ${
+              pathname === '/dashboard' 
+                ? 'text-white border-b-2 border-[#FF6B35]' 
+                : 'text-gray-400 hover:text-white'
+            }`}
+          >
+            MY APPS
+          </Link>
+          <Link 
+            href="/analytics" 
+            className={`py-3 transition ${
+              pathname === '/analytics' 
+                ? 'text-white border-b-2 border-[#FF6B35]' 
+                : 'text-gray-400 hover:text-white'
+            }`}
+          >
+            ANALYTICS
+          </Link>
+          <Link 
+            href="/create" 
+            className={`py-3 transition ${
+              pathname === '/create' 
+                ? 'text-white border-b-2 border-[#FF6B35]' 
+                : 'text-gray-400 hover:text-white'
+            }`}
+          >
+            CREATE APP
+          </Link>
         </div>
       </nav>
     </header>
