@@ -16,50 +16,97 @@ export async function getOrCreateUser(walletAddress: string): Promise<string> {
     throw new Error('Wallet address is required');
   }
 
+  const userLookupUrl = `${API_BASE_URL}/api/users?wallet_address=${encodeURIComponent(walletAddress)}`;
+
+  // 1. Try to fetch existing user first
   try {
-    // Try to get existing user by wallet address
-    const response = await fetch(
-      `${API_BASE_URL}/api/users?wallet_address=${encodeURIComponent(walletAddress)}`
-    );
-
+    const response = await fetch(userLookupUrl);
     if (response.ok) {
-      const user = await response.json();
-      if (user && user.id) {
-        return user.id;
+      const data = await response.json();
+      const existingUser = extractUser(data);
+      if (existingUser?.id) {
+        return existingUser.id;
       }
+    } else if (response.status !== 404) {
+      console.warn('Failed to fetch user by wallet address', response.status);
     }
+  } catch (error) {
+    console.warn('Error fetching user by wallet address', error);
+  }
 
-    // If not found, create new user
+  // 2. Create user only if not found
+  try {
     const createResponse = await fetch(`${API_BASE_URL}/api/users`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        wallet_address: walletAddress,
-      }),
+      body: JSON.stringify({ wallet_address: walletAddress }),
     });
 
     if (createResponse.ok) {
-      const newUser = await createResponse.json();
-      if (newUser && newUser.id) {
-        return newUser.id;
+      const createdData = await createResponse.json();
+      const createdUser = extractUser(createdData);
+      if (createdUser?.id) {
+        return createdUser.id;
       }
+    } else if (createResponse.status === 409) {
+      // User already exists – re-fetch to get the ID
+      const retryResponse = await fetch(userLookupUrl);
+      if (retryResponse.ok) {
+        const retryData = await retryResponse.json();
+        const retryUser = extractUser(retryData);
+        if (retryUser?.id) {
+          return retryUser.id;
+        }
+      }
+    } else {
+      const errorText = await safeReadText(createResponse);
+      console.error('Failed to create user', createResponse.status, errorText);
     }
-
-    // If user endpoints don't work, fall through to UUID generation
-    console.warn('User endpoint not available or returned invalid data, generating deterministic UUID');
   } catch (error) {
-    // If the endpoint doesn't exist, generate a deterministic UUID from wallet address
-    console.warn('User endpoint not available, generating deterministic UUID:', error);
+    console.error('Error creating user', error);
   }
 
-  // Always return a deterministic UUID as fallback
-  const generatedUUID = generateUUIDFromWallet(walletAddress);
-  if (!generatedUUID || generatedUUID.trim() === '') {
-    throw new Error('Failed to generate user UUID');
+  throw new Error('Unable to resolve user account for wallet address');
+}
+
+function extractUser(data: any): User | null {
+  if (!data) return null;
+
+  const normalize = (value: any): User | null => {
+    if (!value) return null;
+    if (typeof value === 'object' && value.id) return value as User;
+    return null;
+  };
+
+  if (Array.isArray(data)) {
+    const candidate = data.find((item) => item && item.id);
+    return normalize(candidate);
   }
-  return generatedUUID;
+
+  if (data.data) {
+    if (Array.isArray(data.data)) {
+      const candidate = data.data.find((item: any) => item && item.id);
+      return normalize(candidate);
+    }
+    return normalize(data.data);
+  }
+
+  if (data.user) {
+    return normalize(data.user);
+  }
+
+  return normalize(data);
+}
+
+async function safeReadText(response: Response): Promise<string | undefined> {
+  try {
+    return await response.text();
+  } catch (err) {
+    console.warn('Failed to read response text', err);
+    return undefined;
+  }
 }
 
 /**
