@@ -130,7 +130,17 @@ export default function Dashboard() {
                   </span>
                 </div>
 
-                <div className="space-y-3 mb-4">
+                <div className="space-y-4 mb-4">
+                  {api.wrapped_path && (
+                    <div>
+                      <p className="text-xs text-gray-500 mb-1">Wrapped Path</p>
+                      <p className="text-sm text-gray-200 font-mono break-all bg-gray-800/60 rounded-md px-3 py-2 border border-gray-700">
+                        {api.wrapped_path}
+                      </p>
+                    </div>
+                  )}
+
+
                   <div>
                     <p className="text-xs text-gray-500 mb-1">Original URL</p>
                     <a
@@ -142,20 +152,6 @@ export default function Dashboard() {
                       {api.original_url}
                     </a>
                   </div>
-
-                  {(api.subdomain_url || (api.service_subdomain && api.service_domain)) && (
-                    <div>
-                      <p className="text-xs text-gray-500 mb-1">Subdomain URL</p>
-                      <a
-                        href={api.subdomain_url || `http://${api.service_subdomain}.${api.service_domain}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-[#FF6B35] hover:underline text-sm font-mono"
-                      >
-                        {api.subdomain_url || `http://${api.service_subdomain}.${api.service_domain}`}
-                      </a>
-                    </div>
-                  )}
 
                   <div className="flex items-center justify-between pt-2 border-t border-gray-800">
                     <div>

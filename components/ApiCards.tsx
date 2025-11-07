@@ -82,21 +82,24 @@ export function ApiCards() {
                 {api.original_url}
               </p>
 
-              <div className="flex items-center justify-between mb-4">
-                <div>
-                  <p className="text-xs text-gray-500 mb-1">Price per Request</p>
-                  <p className="text-lg font-bold text-[#FF6B35]">
-                    {api.price_per_request} SOL
-                  </p>
-                </div>
-                {api.subdomain_url || (api.service_subdomain && api.service_domain) ? (
-                  <div className="text-right">
-                    <p className="text-xs text-gray-500 mb-1">Subdomain</p>
-                    <p className="text-sm text-gray-400 font-mono">
-                      {api.service_subdomain || 'N/A'}
+              <div className="space-y-4 mb-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-xs text-gray-500 mb-1">Price per Request</p>
+                    <p className="text-lg font-bold text-[#FF6B35]">
+                      {api.price_per_request} SOL
                     </p>
                   </div>
-                ) : null}
+                </div>
+
+                {api.wrapped_path && (
+                  <div>
+                    <p className="text-xs text-gray-500 mb-1">Wrapped Path</p>
+                    <p className="text-sm text-gray-400 font-mono break-all">
+                      {api.wrapped_path}
+                    </p>
+                  </div>
+                )}
               </div>
 
               <div className="flex gap-2 pt-4 border-t border-gray-800">

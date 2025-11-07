@@ -169,6 +169,16 @@ export function Header() {
             MY APPS
           </Link>
           <Link 
+            href="/test" 
+            className={`py-3 transition ${
+              pathname === '/test' 
+                ? 'text-white border-b-2 border-[#FF6B35]' 
+                : 'text-gray-400 hover:text-white'
+            }`}
+          >
+            TESTING
+          </Link>
+          <Link 
             href="/analytics" 
             className={`py-3 transition ${
               pathname === '/analytics' 

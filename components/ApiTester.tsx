@@ -6,17 +6,33 @@ import { useState } from 'react';
 import { useWrappedApi } from '@/lib/hooks/useWrappedApi';
 
 interface ApiTesterProps {
-  subdomainUrl: string;
+  baseUrl: string;
+  initialPath?: string;
 }
 
-export function ApiTester({ subdomainUrl }: ApiTesterProps) {
+function buildPath(path: string) {
+  if (!path) return '/';
+  return path.startsWith('/') ? path : `/${path}`;
+}
+
+function buildBaseUrl(url: string) {
+  return url.replace(/\/+$/g, '');
+}
+
+export function ApiTester({ baseUrl, initialPath = '/wrapped/your-api-id' }: ApiTesterProps) {
   const { request, loading, error } = useWrappedApi();
-  const [path, setPath] = useState('/posts/1');
+  const [path, setPath] = useState(initialPath);
   const [response, setResponse] = useState<any>(null);
 
   const handleRequest = async () => {
     try {
-      const res = await request(subdomainUrl, path);
+      const normalizedBase = buildBaseUrl(baseUrl);
+      const normalizedPath = buildPath(path);
+      if (!normalizedBase) {
+        throw new Error('Base URL is required');
+      }
+
+      const res = await request(normalizedBase, normalizedPath);
       const data = await res.json();
       setResponse({ status: res.status, data });
     } catch (err) {
@@ -32,7 +48,7 @@ export function ApiTester({ subdomainUrl }: ApiTesterProps) {
       
       <div>
         <label className="block text-sm font-medium text-gray-300 mb-2">
-          API Path
+          API Path (Wrapped Path)
         </label>
         <div className="flex gap-2">
           <input
@@ -44,7 +60,7 @@ export function ApiTester({ subdomainUrl }: ApiTesterProps) {
           />
           <button
             onClick={handleRequest}
-            disabled={loading || !subdomainUrl}
+            disabled={loading || !baseUrl}
             className="bg-[#FF6B35] hover:bg-[#ff5722] disabled:opacity-50 disabled:cursor-not-allowed text-white px-6 py-2 rounded-lg font-medium transition"
           >
             {loading ? 'Requesting...' : 'Request'}
@@ -67,7 +83,7 @@ export function ApiTester({ subdomainUrl }: ApiTesterProps) {
       )}
 
       <p className="text-xs text-gray-500">
-        This will automatically handle 402 payment requirements using your connected wallet.
+        This tester calls the URL composed from the base URL + wrapped path and automatically handles 402 payment requirements using your connected wallet.
       </p>
     </div>
   );

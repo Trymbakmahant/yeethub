@@ -11,6 +11,7 @@ export interface Api {
   service_subdomain?: string | null;
   service_domain?: string | null;
   subdomain_url?: string;
+  wrapped_path?: string;
   custom_subdomain?: string | null;
   custom_domain?: string | null;
   created_at?: string;
