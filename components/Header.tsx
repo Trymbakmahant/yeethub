@@ -1,31 +1,46 @@
 'use client';
 
 import { useState, FormEvent, useEffect, useRef } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { useWalletModal } from '@solana/wallet-adapter-react-ui';
 import Link from 'next/link';
 
 export function Header() {
   const router = useRouter();
+  const pathname = usePathname();
   const { publicKey, disconnect } = useWallet();
   const { setVisible } = useWalletModal();
   const [searchQuery, setSearchQuery] = useState('');
   const debounceTimer = useRef<NodeJS.Timeout | null>(null);
+  const previousQueryRef = useRef<string>('');
 
   // Debounced search - navigates to search page after user stops typing
+  // Only navigate if the query actually changed (user is typing)
   useEffect(() => {
+    // Don't navigate if query hasn't changed (e.g., on page load)
+    if (searchQuery === previousQueryRef.current) {
+      return;
+    }
+
+    previousQueryRef.current = searchQuery;
+
     if (debounceTimer.current) {
       clearTimeout(debounceTimer.current);
     }
 
+    // Only navigate if we're not already on a page that shouldn't be navigated away from
+    // Allow navigation to search page, but don't force it on other pages
     debounceTimer.current = setTimeout(() => {
-      // Navigate to search page with query (empty query will show all APIs)
       const query = searchQuery.trim();
+      
+      // Only navigate if:
+      // 1. User typed something (query is not empty), OR
+      // 2. User cleared the search and we're already on the search page
       if (query) {
         router.push(`/search?q=${encodeURIComponent(query)}`);
-      } else {
-        // Navigate to search page without query to show all APIs
+      } else if (pathname === '/search') {
+        // Only navigate to /search if we're already on search page
         router.push('/search');
       }
     }, 500); // 500ms debounce
@@ -35,7 +50,7 @@ export function Header() {
         clearTimeout(debounceTimer.current);
       }
     };
-  }, [searchQuery, router]);
+  }, [searchQuery, router, pathname]);
 
   const handleSearch = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -136,8 +151,8 @@ export function Header() {
         <div className="max-w-7xl mx-auto flex items-center gap-6 text-sm font-medium">
           <Link href="/" className="text-white border-b-2 border-[#FF6B35] py-3">HOME</Link>
           <Link href="/dashboard" className="text-gray-400 hover:text-white transition py-3">MY APPS</Link>
+          <Link href="/analytics" className="text-gray-400 hover:text-white transition py-3">ANALYTICS</Link>
           <Link href="/create" className="text-gray-400 hover:text-white transition py-3">CREATE APP</Link>
-          <Link href="/about" className="text-gray-400 hover:text-white transition py-3">ABOUT</Link>
         </div>
       </nav>
     </header>

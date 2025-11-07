@@ -1,6 +1,6 @@
 // API Management utilities for x402 Wrapper API
 
-import { Api, CreateApiRequest, ApiResponse } from './types';
+import { Api, CreateApiRequest, ApiResponse, Analytics } from './types';
 
 // TODO: Replace with your actual API domain
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:6969';
@@ -199,6 +199,30 @@ export const apiManagement = {
       console.error('Search error:', error);
       return [];
     }
+  },
+
+  /**
+   * Get analytics for a user
+   */
+  async getAnalytics(userId: string): Promise<Analytics> {
+    const response = await fetch(`${API_BASE_URL}/api/analytics?user_id=${userId}`);
+
+    if (!response.ok) {
+      // If analytics endpoint doesn't exist, return default analytics
+      if (response.status === 404) {
+        return {
+          total_apis: 0,
+          total_requests: 0,
+          total_revenue: 0,
+          revenue_24h: 0,
+          requests_24h: 0,
+          api_stats: [],
+        };
+      }
+      throw new Error(`Failed to fetch analytics: ${response.status}`);
+    }
+
+    return response.json();
   },
 };
 
