@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, FormEvent } from 'react';
+import { useState, FormEvent, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { useWalletModal } from '@solana/wallet-adapter-react-ui';
@@ -11,11 +11,43 @@ export function Header() {
   const { publicKey, disconnect } = useWallet();
   const { setVisible } = useWalletModal();
   const [searchQuery, setSearchQuery] = useState('');
+  const debounceTimer = useRef<NodeJS.Timeout | null>(null);
+
+  // Debounced search - navigates to search page after user stops typing
+  useEffect(() => {
+    if (debounceTimer.current) {
+      clearTimeout(debounceTimer.current);
+    }
+
+    debounceTimer.current = setTimeout(() => {
+      // Navigate to search page with query (empty query will show all APIs)
+      const query = searchQuery.trim();
+      if (query) {
+        router.push(`/search?q=${encodeURIComponent(query)}`);
+      } else {
+        // Navigate to search page without query to show all APIs
+        router.push('/search');
+      }
+    }, 500); // 500ms debounce
+
+    return () => {
+      if (debounceTimer.current) {
+        clearTimeout(debounceTimer.current);
+      }
+    };
+  }, [searchQuery, router]);
 
   const handleSearch = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (searchQuery.trim()) {
-      router.push(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
+    if (debounceTimer.current) {
+      clearTimeout(debounceTimer.current);
+    }
+    const query = searchQuery.trim();
+    if (query) {
+      router.push(`/search?q=${encodeURIComponent(query)}`);
+    } else {
+      // Navigate to search page without query to show all APIs
+      router.push('/search');
     }
   };
 
@@ -49,7 +81,7 @@ export function Header() {
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search APIs..."
+                placeholder="Search APIs by name or URL..."
                 className="w-full bg-gray-900 border border-gray-700 rounded-lg px-4 py-3 pl-10 text-white placeholder-gray-500 focus:outline-none focus:border-[#FF6B35]"
               />
               <button

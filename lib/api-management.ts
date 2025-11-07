@@ -64,6 +64,30 @@ export const apiManagement = {
   },
 
   /**
+   * List all APIs (no user filter)
+   */
+  async listAll(): Promise<Api[]> {
+    const response = await fetch(`${API_BASE_URL}/api/apis`);
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch all APIs: ${response.status}`);
+    }
+
+    const data = await response.json();
+    
+    // Ensure we have an array
+    const apis = Array.isArray(data) ? data : (data.apis || data.data || []);
+    
+    // Construct subdomain_url if not present
+    return apis.map((api: Api) => {
+      if (!api.subdomain_url && api.service_subdomain && api.service_domain) {
+        api.subdomain_url = `http://${api.service_subdomain}.${api.service_domain}`;
+      }
+      return api;
+    });
+  },
+
+  /**
    * Update API
    */
   async update(id: string, data: Partial<CreateApiRequest>): Promise<Api> {
@@ -96,31 +120,85 @@ export const apiManagement = {
   },
 
   /**
-   * Search APIs by name or other criteria
+   * Get API by name
    */
-  async search(query: string): Promise<Api[]> {
-    const response = await fetch(
-      `${API_BASE_URL}/api/apis/search?q=${encodeURIComponent(query)}`
-    );
-
-    if (!response.ok) {
-      // If search endpoint doesn't exist, return empty array
-      if (response.status === 404) {
-        return [];
-      }
-      throw new Error(`Failed to search APIs: ${response.status}`);
+  async getByName(name: string, userId?: string): Promise<Api | null> {
+    let url = `${API_BASE_URL}/api/apis/by-name/${encodeURIComponent(name)}`;
+    if (userId) {
+      url += `?user_id=${encodeURIComponent(userId)}`;
     }
 
-    const data = await response.json();
-    const apis = Array.isArray(data) ? data : (data.apis || data.data || []);
-    
-    // Construct subdomain_url if not present
-    return apis.map((api: Api) => {
-      if (!api.subdomain_url && api.service_subdomain && api.service_domain) {
-        api.subdomain_url = `http://${api.service_subdomain}.${api.service_domain}`;
+    const response = await fetch(url);
+
+    if (!response.ok) {
+      if (response.status === 404) {
+        return null;
       }
-      return api;
-    });
+      throw new Error(`Failed to fetch API by name: ${response.status}`);
+    }
+
+    const api = await response.json();
+    if (!api.subdomain_url && api.service_subdomain && api.service_domain) {
+      api.subdomain_url = `http://${api.service_subdomain}.${api.service_domain}`;
+    }
+    return api;
+  },
+
+  /**
+   * Get API by original URL
+   */
+  async getByUrl(originalUrl: string, userId?: string): Promise<Api | null> {
+    let url = `${API_BASE_URL}/api/apis/by-url?url=${encodeURIComponent(originalUrl)}`;
+    if (userId) {
+      url += `&user_id=${encodeURIComponent(userId)}`;
+    }
+
+    const response = await fetch(url);
+
+    if (!response.ok) {
+      if (response.status === 404) {
+        return null;
+      }
+      throw new Error(`Failed to fetch API by URL: ${response.status}`);
+    }
+
+    const api = await response.json();
+    if (!api.subdomain_url && api.service_subdomain && api.service_domain) {
+      api.subdomain_url = `http://${api.service_subdomain}.${api.service_domain}`;
+    }
+    return api;
+  },
+
+  /**
+   * Search APIs by name or URL
+   * Automatically detects if query is a URL or name
+   * If query is empty, returns all APIs
+   */
+  async search(query: string, userId?: string): Promise<Api[]> {
+    const trimmedQuery = query.trim();
+    
+    // If query is empty, return all APIs
+    if (!trimmedQuery) {
+      return this.listAll();
+    }
+
+    // Check if query looks like a URL
+    const isUrl = /^https?:\/\//i.test(trimmedQuery) || /^[a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9]*\.[a-zA-Z]{2,}/.test(trimmedQuery);
+
+    try {
+      if (isUrl) {
+        // Search by URL
+        const api = await this.getByUrl(trimmedQuery, userId);
+        return api ? [api] : [];
+      } else {
+        // Search by name
+        const api = await this.getByName(trimmedQuery, userId);
+        return api ? [api] : [];
+      }
+    } catch (error) {
+      console.error('Search error:', error);
+      return [];
+    }
   },
 };
 

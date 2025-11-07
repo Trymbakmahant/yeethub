@@ -2,31 +2,53 @@
 
 import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
+import { useWallet } from '@solana/wallet-adapter-react';
 import { Header } from '@/components/Header';
 import { apiManagement } from '@/lib/api-management';
+import { getOrCreateUser } from '@/lib/user-management';
 import { Api } from '@/lib/types';
 import Link from 'next/link';
 
 function SearchContent() {
   const searchParams = useSearchParams();
+  const { publicKey } = useWallet();
   const query = searchParams.get('q') || '';
   const [apis, setApis] = useState<Api[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [searchType, setSearchType] = useState<'name' | 'url' | null>(null);
 
   useEffect(() => {
-    if (query) {
-      searchApis(query);
-    } else {
-      setLoading(false);
-    }
-  }, [query]);
+    // Always call searchApis, even with empty query (to show all APIs)
+    searchApis(query);
+  }, [query, publicKey]);
 
   const searchApis = async (searchQuery: string) => {
     setLoading(true);
     setError(null);
+    
+    const trimmedQuery = searchQuery.trim();
+    
+    // Detect if query is a URL or name (only if query is not empty)
+    if (trimmedQuery) {
+      const isUrl = /^https?:\/\//i.test(trimmedQuery) || /^[a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9]*\.[a-zA-Z]{2,}/.test(trimmedQuery);
+      setSearchType(isUrl ? 'url' : 'name');
+    } else {
+      setSearchType(null);
+    }
+
     try {
-      const results = await apiManagement.search(searchQuery);
+      // Get user ID if wallet is connected (only for specific searches, not for listing all)
+      let userId: string | undefined;
+      if (publicKey && trimmedQuery) {
+        try {
+          userId = await getOrCreateUser(publicKey.toString());
+        } catch (err) {
+          console.warn('Could not get user ID, searching without user filter');
+        }
+      }
+
+      const results = await apiManagement.search(searchQuery, userId);
       setApis(results);
     } catch (err) {
       console.error('Error searching APIs:', err);
@@ -42,8 +64,20 @@ function SearchContent() {
       <Header />
       <div className="max-w-7xl mx-auto py-16 px-6">
         <h1 className="text-4xl font-bold mb-8">
-          {query ? `Search Results for "${query}"` : 'Search APIs'}
+          {query ? `Search Results for "${query}"` : 'All APIs'}
         </h1>
+
+        {query && searchType && (
+          <p className="text-gray-400 text-sm mb-4">
+            Searching by {searchType === 'url' ? 'URL' : 'name'}
+          </p>
+        )}
+
+        {!query && (
+          <p className="text-gray-400 text-sm mb-4">
+            Showing all available APIs
+          </p>
+        )}
 
         {loading ? (
           <div className="bg-gray-900 rounded-lg p-12 text-center">
@@ -59,16 +93,6 @@ function SearchContent() {
             >
               Retry
             </button>
-          </div>
-        ) : !query ? (
-          <div className="bg-gray-900 rounded-lg p-12 text-center">
-            <p className="text-gray-400 mb-4">Enter a search query to find APIs</p>
-            <Link
-              href="/"
-              className="text-[#FF6B35] hover:text-[#ff5722] font-semibold"
-            >
-              Go to Home →
-            </Link>
           </div>
         ) : apis.length === 0 ? (
           <div className="bg-gray-900 rounded-lg p-12 text-center">
